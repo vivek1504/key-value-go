@@ -172,3 +172,18 @@ func (c *Engine) GetMapFromFile() ([]Item, map[string]string) {
 
 	return i, m
 }
+
+func (e *Engine) Restore() {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	items, _ := e.GetMapFromFile()
+
+	for _, v := range items {
+		e.setKey(v.Key, v.Offset)
+	}
+}
+
+func (c *Engine) Close() {
+	c.file.Close()
+}
