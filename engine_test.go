@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func Test_SetGetKeyValue(t *testing.T) {
-	e := NewEngine()
+	e, _ := NewEngine()
 	e.Set("foo", "bar")
 	value, err := e.Get("foo")
 	if err != nil {
