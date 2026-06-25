@@ -8,22 +8,9 @@ import (
 	"time"
 )
 
-func Test_SetGetKeyValue(t *testing.T) {
-	e, _ := NewEngine()
-	e.Set("foo", "bar")
-	value, err := e.Get("foo")
-	if err != nil {
-		t.Error(err)
-	}
-	if value != "bar" {
-		t.Error("value should be bar")
-	}
-
-	_, err = e.Get("notfound")
-	if err == nil {
-		t.Error("should return error")
-	}
-
+var cfg = Config{
+	FileData:   "data.txt",
+	FileRemove: "delete.txt",
 }
 
 func (c *Engine) GetFileContent(f *os.File) []string {
@@ -51,7 +38,7 @@ func TestEngine_Compact(t *testing.T) {
 	os.Remove("data.txt")
 	v1 := "latestvalue1"
 	v2 := "latestvalue2"
-	e, _ := NewEngine()
+	e, _ := NewEngine(Config{})
 	e.Set("key1", "value1")
 	e.Set("key2", "value2")
 	e.Set("key1", v1)
@@ -69,14 +56,14 @@ func TestEngine_Compact(t *testing.T) {
 
 func TestEngine_Restore(t *testing.T) {
 	os.Remove("data.txt")
-	e, _ := NewEngine()
+	e, _ := NewEngine(Config{})
 
 	e.Set("key1_restore", "value1")
 	e.Set("key2_restore", "value2")
 
 	e.Close()
 
-	e, _ = NewEngine()
+	e, _ = NewEngine(Config{})
 	e.Restore()
 	k, _ := e.Get("key1_restore")
 
@@ -88,7 +75,7 @@ func TestEngine_Restore(t *testing.T) {
 func TestEngine_DeleteKey(t *testing.T) {
 	os.Remove("data.txt")
 	os.Remove("remove.txt")
-	e, _ := NewEngine()
+	e, _ := NewEngine(Config{})
 
 	e.Set("key1_delete", "value1")
 	e.Set("key2_delete", "value2")
@@ -112,7 +99,7 @@ func TestEngine_DeleteKey(t *testing.T) {
 func TestEngine_DeleteKeyFromFile(t *testing.T) {
 	os.Remove("data.txt")
 	os.Remove("delete.txt")
-	e, _ := NewEngine()
+	e, _ := NewEngine(Config{})
 
 	e.Set("key1_delete", "value1")
 	e.Set("key2_delete", "value2")
@@ -122,5 +109,23 @@ func TestEngine_DeleteKeyFromFile(t *testing.T) {
 
 	if len(e.GetFileContent(e.file)) != 1 {
 		t.Errorf("Expected %d, but got %d", 1, len(e.GetFileContent(e.file)))
+	}
+}
+
+func Test_SetGetKeyValue(t *testing.T) {
+	e, _ := NewEngine(cfg)
+	e.Set("test", "data")
+	e.Set("foo", "bar")
+	value, err := e.Get("foo")
+	if err != nil {
+		t.Error(err)
+	}
+	if value != "bar" {
+		t.Error("value should be bar")
+	}
+
+	_, err = e.Get("notfound")
+	if err == nil {
+		t.Error("should return error")
 	}
 }
