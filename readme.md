@@ -1,4 +1,4 @@
-# key-go
+# key value store
 
 A lightweight, persistent key-value store written in Go with an HTTP API. Data is durably stored to disk using an append-only file format with automatic background compaction and garbage collection.
 
