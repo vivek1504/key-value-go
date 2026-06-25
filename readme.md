@@ -208,7 +208,3 @@ The test suite covers:
 - **Offset-based reads** — Values are read directly from disk via `seek` rather than being cached in memory, keeping the memory footprint small (only keys and offsets are held in RAM).
 - **Separate delete queue** — Deletes are immediately reflected in the in-memory index but physically removed from the data file asynchronously, keeping delete latency low.
 - **Periodic compaction** — Rather than compacting on every write, a background loop runs every 5 seconds to balance write throughput with disk space reclamation.
-
-## License
-
-This project is open source. See the repository for license details.
