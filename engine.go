@@ -25,12 +25,6 @@ type Item struct {
 	Offset int64
 }
 
-type Item struct {
-	Key    string
-	Value  string
-	Offset int64
-}
-
 var keyValueSeparator = " "
 
 const Seconds = 5
@@ -321,74 +315,4 @@ func (c *Engine) deleteKeyFromFile(keys []string) error {
 	}
 
 	return nil
-}
-
-func (e *Engine) CompactFile() {
-	for {
-		time.Sleep(time.Duration(Seconds) * time.Second)
-		fmt.Println("Compacting file...")
-		e.mu.Lock()
-
-		_, m := e.GetMapFromFile()
-
-		err := e.file.Truncate(0)
-		if err != nil {
-			fmt.Println(err)
-			e.mu.Unlock()
-			continue
-		}
-
-		for k, v := range m {
-			e.setRaw(k, v)
-		}
-
-		e.file.Seek(0, 0)
-		e.mu.Unlock()
-	}
-}
-
-func (c *Engine) GetMapFromFile() ([]Item, map[string]string) {
-	m := make(map[string]string)
-	i := []Item{}
-
-	_, err := c.file.Seek(0, 0)
-	if err != nil {
-		fmt.Println(err)
-		return i, m
-	}
-
-	var totalBytesRead int64
-	scanner := bufio.NewScanner(c.file)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		offset := totalBytesRead
-		parts := strings.Split(line, keyValueSeparator)
-		if len(parts) >= 2 {
-			m[parts[0]] = parts[1]
-			i = append(i, Item{
-				Key:    parts[0],
-				Value:  parts[1],
-				Offset: offset,
-			})
-		}
-		totalBytesRead += int64(len(line) + 1)
-	}
-
-	return i, m
-}
-
-func (e *Engine) Restore() {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-
-	items, _ := e.GetMapFromFile()
-
-	for _, v := range items {
-		e.setKey(v.Key, v.Offset)
-	}
-}
-
-func (c *Engine) Close() {
-	c.file.Close()
 }
